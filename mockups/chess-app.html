@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>World Chess | Grandmaster Vault</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+    <style>
+      :root {
+        --wc-black: #000000;
+        --wc-white: #ffffff;
+        --wc-gray: #f2f2f2;
+        --wc-border: #e5e5e5;
+        --wc-gold: #bc996a;
+        --wc-accent: #34c759;
+        --hex-bg: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><path d="M15 0l15 7.5v15L15 30 0 22.5v-15z" fill="none" stroke="rgba(0,0,0,0.03)" stroke-width="1"/></svg>');
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        background: #111;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        height: 100vh;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        overflow: hidden;
+      }
+
+      .app-shell {
+        width: 100%;
+        max-width: 414px;
+        height: 100%;
+        background: var(--wc-gray);
+        background-image: var(--hex-bg);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+      }
+
+      .screen {
+        flex: 1;
+        padding: 24px;
+        overflow-y: auto;
+        display: none;
+        padding-bottom: 100px;
+      }
+      .active-screen {
+        display: block;
+        animation: screenFade 0.3s ease;
+      }
+      @keyframes screenFade {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .logo-mark {
+        border: 3px solid black;
+        padding: 5px 10px;
+        font-weight: 900;
+        font-size: 1.4rem;
+        display: inline-block;
+      }
+      h1,
+      h2,
+      h3 {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 800;
+        margin: 0;
+      }
+      .serif {
+        font-family: 'Georgia', serif;
+        font-style: italic;
+        color: #666;
+      }
+
+      .btn-black {
+        background: var(--wc-black);
+        color: white;
+        padding: 18px;
+        border: none;
+        font-weight: 700;
+        width: 100%;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .btn-white {
+        background: white;
+        color: black;
+        border: 1px solid black;
+      }
+
+      .verify-banner {
+        background: #007aff;
+        color: white;
+        padding: 18px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        cursor: pointer;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .stat-card {
+        background: var(--wc-white);
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid var(--wc-border);
+        cursor: pointer;
+      }
+      .stat-card .value {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: var(--wc-black);
+        display: block;
+      }
+      .stat-card .label {
+        font-size: 0.6rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 4px;
+        display: block;
+      }
+
+      .id-card-trigger {
+        background: black;
+        color: white;
+        padding: 24px;
+        border-radius: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        margin-bottom: 30px;
+      }
+
+      .list-entry {
+        background: white;
+        border: 1px solid var(--wc-border);
+        padding: 16px;
+        border-radius: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      nav {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid #ddd;
+        display: none;
+        justify-content: space-around;
+        padding: 15px 0 35px;
+        z-index: 100;
+      }
+      nav div {
+        color: #aaa;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-align: center;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      nav .nav-active {
+        color: var(--wc-black);
+      }
+
+      .back-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      /* Camera UI */
+      .camera-view {
+        width: 100%;
+        aspect-ratio: 1/1;
+        background: #000;
+        border-radius: 30px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .scan-frame {
+        width: 70%;
+        height: 70%;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        position: relative;
+      }
+      .scan-line {
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background: var(--wc-gold);
+        top: 0;
+        animation: scanLine 2s linear infinite;
+      }
+      @keyframes scanLine {
+        0% {
+          top: 0;
+        }
+        100% {
+          top: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <div
+        id="scr-login"
+        class="screen active-screen"
+        style="background: white; text-align: center"
+      >
+        <div style="margin-top: 80px">
+          <div class="logo-mark">W / C</div>
+          <h1>World Chess</h1>
+          <p class="serif" style="margin-top: 10px">Official Player Vault</p>
+        </div>
+        <div style="margin-top: 60px; padding: 0 20px">
+          <button class="btn-black btn-white" onclick="login()">
+            <i data-lucide="mail"></i> Continue with Google
+          </button>
+          <button class="btn-black" onclick="login()">
+            <i data-lucide="fingerprint"></i> Sign in with Passkey
+          </button>
+        </div>
+      </div>
+
+      <div id="scr-home" class="screen">
+        <header
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+          "
+        >
+          <h2>Vault</h2>
+          <div
+            onclick="show('scr-scan-web')"
+            style="
+              cursor: pointer;
+              background: black;
+              color: white;
+              padding: 8px;
+              border-radius: 8px;
+            "
+          >
+            <i data-lucide="maximize" size="20"></i>
+          </div>
+        </header>
+
+        <div id="verify-banner" class="verify-banner" onclick="show('scr-id-upload')">
+          <i data-lucide="shield-check" size="24"></i>
+          <div style="flex: 1">
+            <div style="font-weight: 800; font-size: 0.8rem; text-transform: uppercase">
+              Verify Identity
+            </div>
+            <div style="font-size: 0.7rem; opacity: 0.9">Secure FIDE Membership Status</div>
+          </div>
+          <i data-lucide="chevron-right" size="18"></i>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card" onclick="show('scr-games')">
+            <span class="value">42</span>
+            <span class="label">Matches</span>
+          </div>
+          <div class="stat-card" onclick="show('scr-tournaments')">
+            <span class="value">12</span>
+            <span class="label">Events</span>
+          </div>
+          <div class="stat-card">
+            <span class="value">2840</span>
+            <span class="label">ELO Rating</span>
+          </div>
+          <div class="stat-card">
+            <span class="value">1,250</span>
+            <span class="label">ASA Rewards</span>
+          </div>
+        </div>
+
+        <div class="id-card-trigger" onclick="show('scr-present-id')">
+          <div>
+            <div style="font-weight: 900; font-size: 1.1rem; letter-spacing: 1px">
+              GARRY KASPAROV
+            </div>
+            <div
+              id="id-status"
+              class="serif"
+              style="font-size: 0.75rem; color: var(--wc-gold); margin-top: 4px"
+            >
+              Pending Verification
+            </div>
+          </div>
+          <i data-lucide="qr-code" size="28"></i>
+        </div>
+      </div>
+
+      <div id="scr-scan-web" class="screen">
+        <div class="back-nav" onclick="show('scr-home')">
+          <i data-lucide="arrow-left"></i> <span>Web Login</span>
+        </div>
+        <h2 style="font-size: 1rem; margin-bottom: 10px">Connect to Desktop</h2>
+        <p class="serif" style="font-size: 0.85rem; margin-bottom: 30px">
+          Scan the QR code on worldchess.com to access your profile on the web.
+        </p>
+
+        <div class="camera-view">
+          <div class="scan-frame">
+            <div class="scan-line"></div>
+          </div>
+        </div>
+
+        <button class="btn-black" style="margin-top: 30px" onclick="simulateWebLogin()">
+          <i data-lucide="laptop"></i> Simulate Scan
+        </button>
+      </div>
+
+      <div id="scr-tournaments" class="screen">
+        <div class="back-nav" onclick="show('scr-home')">
+          <i data-lucide="arrow-left"></i> <span>Events</span>
+        </div>
+        <div class="list-entry">
+          <div style="flex: 1">
+            <div style="font-weight: 800; font-size: 0.9rem">FIDE Grand Prix 2026</div>
+            <div class="serif" style="font-size: 0.75rem">Berlin • 1st Place</div>
+            <button
+              onclick="openAddProof('FIDE Grand Prix 2026')"
+              style="
+                background: transparent;
+                border: 1px solid black;
+                padding: 6px 12px;
+                font-size: 0.6rem;
+                font-weight: bold;
+                text-transform: uppercase;
+                margin-top: 10px;
+              "
+            >
+              <i data-lucide="upload" size="10"></i> Add Proof
+            </button>
+          </div>
+          <i data-lucide="award" size="20"></i>
+        </div>
+      </div>
+
+      <div id="scr-id-upload" class="screen">
+        <div class="back-nav" onclick="show('scr-home')">
+          <i data-lucide="arrow-left"></i> <span>Identity</span>
+        </div>
+        <div
+          style="
+            border: 1px dashed #bbb;
+            background: white;
+            padding: 60px 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+          "
+        >
+          <i data-lucide="camera" size="40" color="#aaa"></i>
+          <p style="font-size: 0.75rem">Passport or National ID</p>
+        </div>
+        <button class="btn-black" onclick="finishVerification()">Submit</button>
+      </div>
+
+      <div id="scr-games" class="screen">
+        <div class="back-nav" onclick="show('scr-home')">
+          <i data-lucide="arrow-left"></i> <span>Games</span>
+        </div>
+        <div class="list-entry">
+          <div>
+            <strong>vs Magnus Carlsen</strong><br /><small class="serif">World Open Round 4</small>
+          </div>
+          <div style="color: var(--wc-accent); font-weight: 900">WIN</div>
+        </div>
+      </div>
+
+      <div id="scr-contacts" class="screen">
+        <h2 style="margin-bottom: 24px">Circle</h2>
+        <div class="list-entry">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <div
+              style="
+                width: 40px;
+                height: 40px;
+                background: black;
+                border-radius: 50%;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+              "
+            >
+              MC
+            </div>
+            <div>
+              <div style="font-weight: 800">Magnus Carlsen</div>
+              <small class="serif">ELO 2853</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav id="app-nav">
+        <div id="nav-home" onclick="show('scr-home')" class="nav-active">
+          <i data-lucide="home"></i><br />Vault
+        </div>
+        <div id="nav-contacts" onclick="show('scr-contacts')">
+          <i data-lucide="users"></i><br />Circle
+        </div>
+      </nav>
+    </div>
+
+    <script>
+      lucide.createIcons();
+
+      function show(id) {
+        document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active-screen'));
+        document.getElementById(id).classList.add('active-screen');
+        document.getElementById('app-nav').style.display = id === 'scr-login' ? 'none' : 'flex';
+
+        const homeActive =
+          id === 'scr-home' ||
+          id === 'scr-tournaments' ||
+          id === 'scr-games' ||
+          id === 'scr-scan-web';
+        document.getElementById('nav-home').classList.toggle('nav-active', homeActive);
+        document
+          .getElementById('nav-contacts')
+          .classList.toggle('nav-active', id === 'scr-contacts');
+      }
+
+      function login() {
+        show('scr-home');
+      }
+
+      function simulateWebLogin() {
+        alert('Authenticating with worldchess.com...');
+        setTimeout(() => {
+          alert('Access Granted. You are now logged in on your desktop browser.');
+          show('scr-home');
+        }, 1000);
+      }
+
+      function finishVerification() {
+        alert('ID Submitted.');
+        document.getElementById('verify-banner').style.display = 'none';
+        document.getElementById('id-status').innerText = 'Verified Federation Member';
+        document.getElementById('id-status').style.color = 'var(--wc-accent)';
+        show('scr-home');
+      }
+
+      function openAddProof(name) {
+        alert('Opening proof upload for ' + name);
+      }
+    </script>
+  </body>
+</html>

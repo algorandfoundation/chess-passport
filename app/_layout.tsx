@@ -1,10 +1,12 @@
-import { Alert, Platform } from 'react-native';
-import { useEventListener } from 'expo';
-import { Stack } from 'expo-router';
-import { install } from 'react-native-quick-crypto';
-import { keyStore } from '@/stores/keystore';
+import { CredentialProviderService } from '@/lib/credentialProvider';
+import { globalPolyfill, setupNavigatorPolyfill } from '@/lib/polyfill';
+import { PreventScreenshotProvider } from '@/providers/PreventScreenshotProvider';
+import { ReactNativeProvider, WalletProvider } from '@/providers/ReactNativeProvider';
+import { accountsStore } from '@/stores/accounts';
 import { keyStoreHooks } from '@/stores/before-after';
-import { fetchSecret, getMasterKey, storage } from '@algorandfoundation/react-native-keystore';
+import { identitiesStore } from '@/stores/identities';
+import { keyStore } from '@/stores/keystore';
+import { passkeysStore } from '@/stores/passkeys';
 import {
   initializeKeyStore,
   Key,
@@ -12,17 +14,15 @@ import {
   KeyStoreState,
   setStatus,
 } from '@algorandfoundation/keystore';
-import { Store } from '@tanstack/store';
-import { accountsStore } from '@/stores/accounts';
-import { ReactNativeProvider, WalletProvider } from '@/providers/ReactNativeProvider';
-import { identitiesStore } from '@/stores/identities';
-import { passkeysStore } from '@/stores/passkeys';
-import { registerGlobals } from 'react-native-webrtc';
-import { globalPolyfill, setupNavigatorPolyfill } from '@/lib/polyfill';
+import { fetchSecret, getMasterKey, storage } from '@algorandfoundation/react-native-keystore';
 import ReactNativePasskeyAutofill from '@algorandfoundation/react-native-passkey-autofill';
-import { CredentialProviderService } from '@/lib/credentialProvider';
-import { PreventScreenshotProvider } from '@/providers/PreventScreenshotProvider';
+import { Store } from '@tanstack/store';
+import { useEventListener } from 'expo';
+import { Stack } from 'expo-router';
 import React from 'react';
+import { Alert, Platform } from 'react-native';
+import { install } from 'react-native-quick-crypto';
+import { registerGlobals } from 'react-native-webrtc';
 
 globalPolyfill();
 registerGlobals();
@@ -156,7 +156,9 @@ export default function RootLayout() {
   return (
     <PreventScreenshotProvider>
       <WalletProvider provider={provider}>
-        <Stack />
+        <Stack>
+          <Stack.Screen name="chess-passport" options={{ headerShown: false }} />
+        </Stack>
       </WalletProvider>
     </PreventScreenshotProvider>
   );

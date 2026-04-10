@@ -1,9 +1,8 @@
-import { Redirect } from 'expo-router';
 import { useProvider } from '@/hooks/useProvider';
+import { Redirect } from 'expo-router';
 
 export default function Index() {
   const { keys, status } = useProvider();
   if (status === 'loading') return null;
-  if (keys.length > 0) return <Redirect href="/landing" />;
-  return <Redirect href="/onboarding" />;
+  return <Redirect href="/chess-passport/landing" />;
 }
