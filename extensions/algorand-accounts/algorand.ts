@@ -95,6 +95,10 @@ export const createSubscriberWithWatchlist = (
     algod,
   );
 
+  subscriber.onError((error) => {
+    console.error('Algorand subscriber error:', error);
+  });
+
   subscriber.on('balance-changes', async (event) => {
     // we can assume only the watchlist addresses are included
     for (const change of event.balanceChanges ?? []) {
