@@ -98,7 +98,7 @@ The following extensions are used to provide the wallet's functionality:
 
 - **Purpose**: Automatically discovers and manages Algorand blockchain accounts associated with generated keys, providing real-time balance tracking and transaction signing capabilities.
 - **Functionality**:
-  - Monitors KeyStore for new Ed25519 keys and checks if they correspond to funded Algorand accounts (balance > 0.1 ALGO).
+  - Monitors KeyStore for new Ed25519 keys and checks if they correspond to Algorand accounts.
   - Automatically adds discovered Algorand accounts to the AccountStore with balance and asset information.
   - Provides a `sign(txns: Uint8Array[])` method on account objects for signing Algorand transactions.
   - Subscribes to real-time balance changes for all Algorand accounts using `AlgorandSubscriber`.
