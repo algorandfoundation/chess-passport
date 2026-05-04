@@ -9,6 +9,7 @@ import { keyStore } from '@/stores/keystore';
 import { passkeysStore } from '@/stores/passkeys';
 import { ReactKeystoreOptions } from '@algorandfoundation/react-native-keystore';
 import ReactNativePasskeyAutofill from '@algorandfoundation/react-native-passkey-autofill';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEventListener } from 'expo';
 import { Stack } from 'expo-router';
 import React from 'react';
@@ -67,6 +68,8 @@ const provider = new ReactNativeProvider(
 
 setupNavigatorPolyfill();
 
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
   React.useEffect(() => {
     bootstrap(biometricOptions).catch((e) => console.error('Bootstrap promise error:', e));
@@ -92,9 +95,11 @@ export default function RootLayout() {
 
   return (
     <PreventScreenshotProvider>
-      <WalletProvider provider={provider}>
-        <Stack />
-      </WalletProvider>
+      <QueryClientProvider client={queryClient}>
+        <WalletProvider provider={provider}>
+          <Stack />
+        </WalletProvider>
+      </QueryClientProvider>
     </PreventScreenshotProvider>
   );
 }
