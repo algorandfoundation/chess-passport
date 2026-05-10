@@ -2,13 +2,13 @@ import Button from '@/components/world-chess/button';
 import StatCard from '@/components/world-chess/stat-card';
 import theme from '@/features/world-chess/theme/theme';
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons';
-import { Image, Text, View } from 'react-native';
+import { Image, ImageSourcePropType, Text, View } from 'react-native';
 
 interface ProfileOverviewProps {
   name: string;
   eloRating: number;
   progressPoints: bigint;
-  avatar: ReturnType<typeof require>;
+  avatar: ImageSourcePropType;
   onSharePress?: () => void;
 }
 
