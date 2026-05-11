@@ -147,7 +147,7 @@ const primitives = {
   },
   font: {
     family: {
-      numeric: 'PP Right Grotesk Tall Medium',
+      numeric: 'PP-Right-Grotesk-Tall-Medium',
       header: 'Gerbera',
       p: 'Gerbera',
       label: 'Gerbera',
