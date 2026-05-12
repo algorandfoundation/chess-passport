@@ -23,27 +23,35 @@ export default function SessionDebug({ session }: SessionDebugProps) {
       </Text>
 
       {session.data?.user && (
-        <Text
-          style={{
-            color: theme.semantic.fg['high-emphasis'] as string,
-            fontSize: theme.primitives.font.size['p-md'],
-            fontFamily: theme.primitives.font.family.p,
-          }}
-        >
-          Email: {session.data.user.email || 'N/A'}
-        </Text>
-      )}
-
-      {session.data?.user && (
-        <Text
-          style={{
-            color: theme.semantic.fg['high-emphasis'] as string,
-            fontSize: theme.primitives.font.size['p-md'],
-            fontFamily: theme.primitives.font.family.p,
-          }}
-        >
-          Verified: {session.data.user.emailVerified ? 'Yes' : 'No'}
-        </Text>
+        <View>
+          <Text
+            style={{
+              color: theme.semantic.fg['high-emphasis'] as string,
+              fontSize: theme.primitives.font.size['p-md'],
+              fontFamily: theme.primitives.font.family.p,
+            }}
+          >
+            ID: {session.data.user.id || 'N/A'}
+          </Text>
+          <Text
+            style={{
+              color: theme.semantic.fg['high-emphasis'] as string,
+              fontSize: theme.primitives.font.size['p-md'],
+              fontFamily: theme.primitives.font.family.p,
+            }}
+          >
+            Email: {session.data.user.email || 'N/A'}
+          </Text>
+          <Text
+            style={{
+              color: theme.semantic.fg['high-emphasis'] as string,
+              fontSize: theme.primitives.font.size['p-md'],
+              fontFamily: theme.primitives.font.family.p,
+            }}
+          >
+            Verified: {session.data.user.emailVerified ? 'Yes' : 'No'}
+          </Text>
+        </View>
       )}
 
       {session.data?.player && (
