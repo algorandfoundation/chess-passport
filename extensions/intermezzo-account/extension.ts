@@ -220,15 +220,6 @@ export const WithIntermezzoAccount = (
     getAddress: () => currentAddress,
   } satisfies IntermezzoAccountApi;
 
-  // Keep the remote account in sync with the gateway session lifecycle so
-  // callers don't have to wire these listeners themselves.
-  gateway.on('signedIn', () => {
-    refresh().catch((e) => console.error('intermezzo refresh after signedIn failed:', e));
-  });
-  gateway.on('signedOut', () => {
-    refresh().catch((e) => console.error('intermezzo refresh after signedOut failed:', e));
-  });
-
   // Best-effort initial resolution; failures are logged inside `refresh`.
   setImmediate(() => {
     refresh().catch((e) => console.error('Initial intermezzo refresh failed:', e));

@@ -120,10 +120,11 @@ module.exports = {
         port: process.env.EXPO_PUBLIC_GATEWAY_PORT
           ? Number(process.env.EXPO_PUBLIC_GATEWAY_PORT)
           : 3000,
-        // Pre-generated Vault client token (issued out-of-band via the
-        // "UserRole" AppRole). The app POSTs it to the gateway's
-        // `/v1/auth/sign-in/` endpoint to obtain a bearer JWT used for
-        // authenticated calls (e.g. `GET /v1/wallet/users/:user_id/`).
+        // Pre-minted gateway JWT (issued out-of-band against the
+        // pre-assigned UserRole). The app uses it directly as the
+        // bearer token for authenticated calls (e.g.
+        // `GET /v1/wallet/users/:user_id/`); no `/v1/auth/sign-in/`
+        // round-trip is performed at startup.
         userSecretToken: process.env.EXPO_PUBLIC_GATEWAY_USER_SECRET_TOKEN || null,
       },
       algod: {
