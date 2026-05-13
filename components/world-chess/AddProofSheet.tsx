@@ -4,15 +4,16 @@ import Ionicons from '@expo/vector-icons/build/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
+import * as ImagePickerLib from 'expo-image-picker';
 import { forwardRef, useCallback, useState } from 'react';
-import { Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Pressable, Text, View, useWindowDimensions } from 'react-native';
 
 interface AddProofSheetProps {
   onDismiss: () => void;
 }
 
 const AddProofSheet = forwardRef<BottomSheetModal, AddProofSheetProps>(({ onDismiss }, ref) => {
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [imageUri, setImageUri] = useState<string | null>(null);
   const { height: windowHeight } = useWindowDimensions();
   // Explicit pixel height so the area fills space inside Reanimated's BottomSheetView
   // (flex: 1 doesn't resolve inside worklet-driven layout)
@@ -31,9 +32,24 @@ const AddProofSheet = forwardRef<BottomSheetModal, AddProofSheetProps>(({ onDism
     [],
   );
 
-  const onChooseFile = useCallback(() => {
-    // Placeholder — wire up a real document picker here
-    setFileName('document.pdf');
+  const onPickFromGallery = useCallback(async () => {
+    const result = await ImagePickerLib.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  }, []);
+
+  const onTakePhoto = useCallback(async () => {
+    const result = await ImagePickerLib.launchCameraAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
   }, []);
 
   const onUpload = useCallback(() => {
@@ -42,7 +58,7 @@ const AddProofSheet = forwardRef<BottomSheetModal, AddProofSheetProps>(({ onDism
   }, [onDismiss]);
 
   const onRetake = useCallback(() => {
-    setFileName(null);
+    setImageUri(null);
   }, []);
 
   return (
@@ -118,9 +134,8 @@ const AddProofSheet = forwardRef<BottomSheetModal, AddProofSheetProps>(({ onDism
         </Text>
 
         {/* File upload area */}
-        <Pressable
-          onPress={onChooseFile}
-          style={({ pressed }) => ({
+        <View
+          style={{
             height: uploadAreaHeight,
             borderWidth: 1,
             borderColor: theme.semantic.stroke['low-emphasis'] as string,
@@ -132,53 +147,82 @@ const AddProofSheet = forwardRef<BottomSheetModal, AddProofSheetProps>(({ onDism
             justifyContent: 'center',
             gap: theme.primitives.spacing['8'],
             marginBottom: theme.primitives.spacing['12'],
-            opacity: pressed ? 0.6 : 1,
-          })}
+            overflow: 'hidden',
+          }}
         >
-          <Ionicons
-            name={fileName ? 'document-text-outline' : 'cloud-upload-outline'}
-            size={36}
-            color={theme.semantic.fg['medium-emphasis'] as string}
-          />
-          <Text
-            style={{
-              color: fileName
-                ? (theme.semantic.fg['high-emphasis'] as string)
-                : (theme.semantic.fg['medium-emphasis'] as string),
-              fontSize: theme.primitives.font.size['p-md'],
-              fontFamily: theme.primitives.font.family.p,
-              textAlign: 'center',
-            }}
-          >
-            {fileName ?? 'Tap to choose a file'}
-          </Text>
-          {!fileName && (
-            <Text
-              style={{
-                color: theme.semantic.fg['low-emphasis'] as string,
-                fontSize: theme.primitives.font.size['p-sm'],
-                fontFamily: theme.primitives.font.family.p,
-              }}
-            >
-              PDF, JPG, PNG supported
-            </Text>
-          )}
-          {fileName && (
-            <Button
-              label="Retake"
-              variant="secondary"
-              size="small"
-              onPress={onRetake}
-              leftIcon={
-                <MaterialIcons
-                  name="undo"
-                  size={14}
-                  color={theme.semantic.bg['brand-primary'] as string}
+          {!imageUri ? (
+            <>
+              <Ionicons
+                name="cloud-upload-outline"
+                size={36}
+                color={theme.semantic.fg['medium-emphasis'] as string}
+              />
+              <Text
+                style={{
+                  color: theme.semantic.fg['low-emphasis'] as string,
+                  fontSize: theme.primitives.font.size['p-sm'],
+                  fontFamily: theme.primitives.font.family.p,
+                  marginBottom: theme.primitives.spacing['4'],
+                }}
+              >
+                Images only
+              </Text>
+              <View style={{ flexDirection: 'row', gap: theme.primitives.spacing['8'] }}>
+                <Button
+                  label="Gallery"
+                  variant="secondary"
+                  size="small"
+                  onPress={onPickFromGallery}
+                  leftIcon={
+                    <Feather
+                      name="image"
+                      size={14}
+                      color={theme.semantic.fg['brand-primary'] as string}
+                    />
+                  }
                 />
-              }
-            />
+                <Button
+                  label="Camera"
+                  variant="secondary"
+                  size="small"
+                  onPress={onTakePhoto}
+                  leftIcon={
+                    <Feather
+                      name="camera"
+                      size={14}
+                      color={theme.semantic.fg['brand-primary'] as string}
+                    />
+                  }
+                />
+              </View>
+            </>
+          ) : (
+            <>
+              <Image
+                source={{ uri: imageUri }}
+                style={{
+                  width: '100%',
+                  height: uploadAreaHeight - 60,
+                  borderRadius: theme.primitives.radius['6'],
+                }}
+                resizeMode="cover"
+              />
+              <Button
+                label="Retake"
+                variant="secondary"
+                size="small"
+                onPress={onRetake}
+                leftIcon={
+                  <MaterialIcons
+                    name="undo"
+                    size={14}
+                    color={theme.semantic.fg['brand-primary'] as string}
+                  />
+                }
+              />
+            </>
           )}
-        </Pressable>
+        </View>
 
         {/* Upload button */}
         <View style={{ marginTop: theme.primitives.spacing['12'] }}>
@@ -186,7 +230,7 @@ const AddProofSheet = forwardRef<BottomSheetModal, AddProofSheetProps>(({ onDism
             label="Upload"
             variant="primary"
             onPress={onUpload}
-            disabled={!fileName}
+            disabled={!imageUri}
             leftIcon={
               <Feather
                 name="upload"
