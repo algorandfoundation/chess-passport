@@ -4,6 +4,7 @@ import ProfileOverview from '@/components/world-chess/ProfileOverview';
 import ScanCheckInSheet from '@/components/world-chess/ScanCheckInSheet';
 import { useActivities } from '@/hooks/useActivities';
 import { useInvalidateSession, useSession } from '@/hooks/useSession';
+import { useWorldChessPlayer } from '@/hooks/useWorldChess';
 import { chessGateway } from '@/lib/chess-gateway';
 import theme from '@/theme/theme';
 import Ionicons from '@expo/vector-icons/build/Ionicons';
@@ -107,6 +108,9 @@ export default function Dashboard() {
   const session = useSession();
 
   const { activities } = useActivities();
+
+  const { profile: wcProfile, ratings } = useWorldChessPlayer();
+  console.log('wcProfile', wcProfile);
 
   const onScanPress = useCallback(() => {
     hasHandledScanRef.current = false;
@@ -220,10 +224,10 @@ export default function Dashboard() {
         }}
       >
         <ProfileOverview
-          name={profile.name}
-          eloRating={profile.elo}
+          name={wcProfile?.full_name ?? wcProfile?.player?.full_name ?? profile.name}
+          eloRating={ratings?.worldchess?.blitz?.curr_rating ?? profile.elo}
           progressPoints={profile.progressPoints}
-          avatar={profile.avatar}
+          avatar={wcProfile?.avatar?.medium ? { uri: wcProfile.avatar.medium } : profile.avatar}
         />
         <ActivityTabs activities={activities.slice(0, 3)} events={events.slice(0, 3)} />
       </View>
