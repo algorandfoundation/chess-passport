@@ -69,7 +69,7 @@ const events: Event[] = [
   {
     id: '1',
     name: 'FIDE Grand Prix 2026',
-    location: 'Berlin, Germany · May 1, 2026',
+    location: 'Berlin · May 1, 2026',
     position: '# 1st',
     points: 50,
     logo: require('../assets/images/layer2.png'),
@@ -77,7 +77,7 @@ const events: Event[] = [
   {
     id: '2',
     name: 'Norway Chess 2026',
-    location: 'Stavanger, Norway · Apr 12, 2026',
+    location: 'Stavanger · Apr 12, 2026',
     position: '# 2nd',
     points: 35,
     logo: require('../assets/images/layer2.png'),
@@ -85,7 +85,7 @@ const events: Event[] = [
   {
     id: '3',
     name: 'Tata Steel Chess 2026',
-    location: 'Wijk aan Zee, Netherlands · Jan 18, 2026',
+    location: 'Wijk aan Zee · Jan 18, 2026',
     position: '# 3rd',
     points: 50,
     logo: require('../assets/images/layer2.png'),
