@@ -99,6 +99,101 @@ const profile = {
   progressPoints: 1240n,
 };
 
+function SkeletonBlock({
+  width = '100%',
+  height,
+  borderRadius = theme.primitives.radius['4'],
+}: {
+  width?: number | `${number}%`;
+  height: number;
+  borderRadius?: number;
+}) {
+  return (
+    <View
+      style={{
+        width,
+        height,
+        borderRadius,
+        backgroundColor: theme.semantic.stroke['low-emphasis'] as string,
+      }}
+    />
+  );
+}
+
+function ProfileOverviewSkeleton() {
+  return (
+    <View style={{ width: '100%', height: '100%' }}>
+      <View
+        style={{
+          width: '100%',
+          alignItems: 'center',
+          paddingHorizontal: theme.primitives.spacing['16'],
+          paddingVertical: theme.primitives.spacing['16'],
+          backgroundColor: theme.semantic.bg['surface-1'] as string,
+          borderRadius: theme.primitives.radius['4'],
+          gap: theme.primitives.spacing['8'],
+        }}
+      >
+        <View
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: theme.primitives.radius['32'],
+            backgroundColor: theme.semantic.stroke['low-emphasis'] as string,
+          }}
+        />
+        <SkeletonBlock width="52%" height={26} />
+        <SkeletonBlock width={120} height={30} borderRadius={theme.primitives.radius['6']} />
+      </View>
+
+      <View style={{ height: theme.primitives.spacing['8'] }} />
+
+      <View style={{ flexDirection: 'row', gap: theme.primitives.spacing['8'] }}>
+        <SkeletonBlock width="49%" height={88} />
+        <SkeletonBlock width="49%" height={88} />
+      </View>
+    </View>
+  );
+}
+
+function ActivityTabsSkeleton() {
+  return (
+    <View style={{ flex: 1 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          gap: theme.primitives.spacing['16'],
+          marginBottom: theme.primitives.spacing['12'],
+        }}
+      >
+        <SkeletonBlock width={88} height={28} />
+        <SkeletonBlock width={64} height={28} />
+      </View>
+
+      <View style={{ flex: 1 }}>
+        <View style={{ marginBottom: theme.primitives.spacing['16'] }}>
+          <SkeletonBlock height={80} />
+          <View
+            style={{
+              height: 1,
+              backgroundColor: theme.semantic.stroke['lowest-emphasis'] as string,
+            }}
+          />
+          <SkeletonBlock height={80} />
+          <View
+            style={{
+              height: 1,
+              backgroundColor: theme.semantic.stroke['lowest-emphasis'] as string,
+            }}
+          />
+          <SkeletonBlock height={80} />
+        </View>
+        <SkeletonBlock height={48} borderRadius={theme.primitives.radius['6']} />
+      </View>
+    </View>
+  );
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const invalidateSession = useInvalidateSession();
@@ -107,10 +202,17 @@ export default function Dashboard() {
   const hasHandledScanRef = useRef(false);
   const session = useSession();
 
-  const { activities } = useActivities();
+  const { activities, isLoading: activitiesLoading } = useActivities();
 
-  const { profile: wcProfile, ratings } = useWorldChessPlayer();
+  const { profile: wcProfile, ratings, isLoading: worldChessLoading } = useWorldChessPlayer();
   console.log('wcProfile', wcProfile);
+  const isDashboardLoading = activitiesLoading || worldChessLoading;
+
+  const profileName = wcProfile?.full_name ?? wcProfile?.player?.full_name ?? profile.name;
+  const eloRating = ratings?.worldchess?.blitz?.curr_rating ?? profile.elo;
+  const profileAvatar = wcProfile?.avatar?.medium
+    ? { uri: wcProfile.avatar.medium }
+    : profile.avatar;
 
   const onScanPress = useCallback(() => {
     hasHandledScanRef.current = false;
@@ -223,13 +325,41 @@ export default function Dashboard() {
           paddingTop: theme.primitives.spacing['16'],
         }}
       >
-        <ProfileOverview
-          name={wcProfile?.full_name ?? wcProfile?.player?.full_name ?? profile.name}
-          eloRating={ratings?.worldchess?.blitz?.curr_rating ?? profile.elo}
-          progressPoints={profile.progressPoints}
-          avatar={wcProfile?.avatar?.medium ? { uri: wcProfile.avatar.medium } : profile.avatar}
-        />
-        <ActivityTabs activities={activities.slice(0, 3)} events={events.slice(0, 3)} />
+        {isDashboardLoading ? (
+          <View style={{ position: 'relative' }}>
+            <View style={{ opacity: 0 }} pointerEvents="none">
+              <ProfileOverview
+                name={profileName}
+                eloRating={eloRating}
+                progressPoints={profile.progressPoints}
+                avatar={profileAvatar}
+              />
+            </View>
+            <View style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+              <ProfileOverviewSkeleton />
+            </View>
+          </View>
+        ) : (
+          <ProfileOverview
+            name={profileName}
+            eloRating={eloRating}
+            progressPoints={profile.progressPoints}
+            avatar={profileAvatar}
+          />
+        )}
+
+        {isDashboardLoading ? (
+          <View style={{ flex: 1, position: 'relative' }}>
+            <View style={{ flex: 1, opacity: 0 }} pointerEvents="none">
+              <ActivityTabs activities={activities.slice(0, 3)} events={events.slice(0, 3)} />
+            </View>
+            <View style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+              <ActivityTabsSkeleton />
+            </View>
+          </View>
+        ) : (
+          <ActivityTabs activities={activities.slice(0, 3)} events={events.slice(0, 3)} />
+        )}
       </View>
 
       <ScanCheckInSheet
