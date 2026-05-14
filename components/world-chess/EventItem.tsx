@@ -1,5 +1,7 @@
+import Button from '@/components/world-chess/Button';
 import ItemBadge from '@/components/world-chess/ItemBadge';
 import theme from '@/theme/theme';
+import Feather from '@expo/vector-icons/Feather';
 import { Image, ImageSourcePropType, Text, View } from 'react-native';
 
 const ITEM_HEIGHT = 80;
@@ -8,11 +10,20 @@ interface EventItemProps {
   logo: ImageSourcePropType;
   name: string;
   location: string;
-  points: number;
-  position: string;
+  points?: number;
+  position?: string;
+  onAddProof?: () => void;
 }
 
-export default function EventItem({ logo, name, location, points, position }: EventItemProps) {
+export default function EventItem({
+  logo,
+  name,
+  location,
+  points,
+  position,
+  onAddProof,
+}: EventItemProps) {
+  const showProof = points === undefined && position === undefined;
   return (
     <View
       style={{
@@ -59,17 +70,38 @@ export default function EventItem({ logo, name, location, points, position }: Ev
         >
           {location}
         </Text>
-        <Text
-          style={{
-            color: theme.semantic.fg['medium-emphasis'],
-            fontSize: theme.primitives.font.size['p-lg'],
-            fontFamily: theme.primitives.font.family.p,
-          }}
-        >
-          +{points} points
-        </Text>
+        {showProof ? null : (
+          <Text
+            style={{
+              color: theme.semantic.fg['medium-emphasis'],
+              fontSize: theme.primitives.font.size['p-lg'],
+              fontFamily: theme.primitives.font.family.p,
+            }}
+          >
+            +{points} points
+          </Text>
+        )}
       </View>
-      <ItemBadge label={position} variant="event" />
+      {showProof ? (
+        <View style={{ minWidth: 80, height: 32, justifyContent: 'center' }}>
+          <Button
+            label="Add Proof"
+            variant="primary"
+            size="small"
+            onPress={onAddProof}
+            leftIcon={
+              <Feather
+                name="upload"
+                size={16}
+                color={theme.semantic.fg.black as string}
+                style={{ paddingRight: theme.primitives.spacing[2] }}
+              />
+            }
+          />
+        </View>
+      ) : (
+        <ItemBadge label={position!} variant="event" />
+      )}
     </View>
   );
 }
